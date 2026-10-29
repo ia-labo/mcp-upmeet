@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "upmeet-mcp"
+version = "0.1.0"
+description = "MCP server exposing Upmeet meetings (list, filter by theme, details)"
+authors = ["IALab"]
+packages = [{ include = "app" }]
+
+[tool.poetry.dependencies]
+python = ">=3.12,<4.0"
+mcp = "^1.9"
+httpx = "^0.28"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3"
+pylint = "^3.3"
+black = "^25.1"
+isort = "^6.0"
+pre-commit = "^4.2"
+
+[tool.poetry.scripts]
+upmeet-mcp = "app.main:run_server"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
