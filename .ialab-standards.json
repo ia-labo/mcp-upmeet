@@ -1,0 +1,6 @@
+{
+  "files": {
+    "CODE.md": "CODE.md",
+    "logger.py": "app/utils/logger.py"
+  }
+}

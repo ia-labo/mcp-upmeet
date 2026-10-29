@@ -1,0 +1,36 @@
+default_language_version:
+  python: python3.12
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-added-large-files
+
+  - repo: local
+    hooks:
+      - id: black
+        name: black
+        entry: poetry run black --line-length 100
+        language: system
+        types: [python]
+      - id: isort
+        name: isort
+        entry: poetry run isort --profile black --line-length 100
+        language: system
+        types: [python]
+      - id: pylint
+        name: pylint
+        entry: poetry run pylint
+        language: system
+        types: [python]
+        args: ["--rcfile=.pylintrc"]
+        pass_filenames: true
+      - id: ialab-standards
+        name: ialab-standards (vendored files not hand-edited)
+        entry: python scripts/ialab_standards.py check
+        language: system
+        pass_filenames: false
+        always_run: true

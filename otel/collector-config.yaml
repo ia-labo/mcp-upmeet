@@ -1,0 +1,103 @@
+# OTel Collector for an IALab project. Ships host and container metrics, HTTP
+# traces, and the application log stream to ialab-monitoring.
+#
+# Replace every <PLACEHOLDER>. The `project` attribute must match project.name
+# in monitoring/config/<slug>.yaml — it is case-sensitive.
+
+receivers:
+  # HTTP traces pushed by the instrumented application (FastAPIInstrumentor).
+  otlp:
+    protocols:
+      http:
+        endpoint: "0.0.0.0:4318"
+
+  hostmetrics:
+    collection_interval: 30s
+    root_path: /hostfs
+    scrapers:
+      cpu:
+        metrics:
+          system.cpu.utilization:
+            enabled: true
+      memory:
+      paging:
+      disk:
+      filesystem:
+        include_mount_points:
+          mount_points: ["/"]
+          match_type: strict
+      network:
+      load:
+
+  docker_stats:
+    collection_interval: 30s
+    endpoint: unix:///var/run/docker.sock
+    metrics:
+      container.cpu.utilization:
+        enabled: true
+      container.memory.usage.total:
+        enabled: true
+
+  # Application logs written by ialab-logging: one JSON object per line, so a
+  # json_parser is enough — no regex to maintain per project.
+  filelog/upmeet-mcp-backend:
+    include:
+      - <HOST_PATH_TO>/backend_logs/app.log
+    start_at: end
+    operators:
+      - type: json_parser
+        parse_from: body
+        timestamp:
+          parse_from: attributes.ts
+          layout_type: gotime
+          layout: "2006-01-02T15:04:05.000Z"
+        severity:
+          parse_from: attributes.level
+          mapping:
+            fatal: critical
+      # DEBUG never leaves this server. What is actually stored is decided by
+      # logs.min_level in the project YAML, so widening to INFO for a debugging
+      # session needs no access here.
+      - type: filter
+        expr: 'attributes["level"] == "DEBUG"'
+
+processors:
+  batch:
+    timeout: 5s
+    send_batch_size: 50
+  resourcedetection/system:
+    detectors: [system]
+    timeout: 5s
+  resource/project:
+    attributes:
+      - action: upsert
+        key: project
+        value: upmeet_mcp
+
+exporters:
+  otlphttp/ialab:
+    endpoint: "https://monitoring.ia-lab.fr/otlp"
+    encoding: json
+    headers:
+      x-api-key: "${env:OTLP_API_KEY}"
+    timeout: 30s
+    retry_on_failure:
+      enabled: true
+      initial_interval: 5s
+      max_interval: 60s
+      max_elapsed_time: 300s
+
+service:
+  pipelines:
+    metrics:
+      receivers: [hostmetrics, docker_stats]
+      processors: [resourcedetection/system, resource/project, batch]
+      exporters: [otlphttp/ialab]
+    traces:
+      receivers: [otlp]
+      processors: [resource/project, batch]
+      exporters: [otlphttp/ialab]
+    logs:
+      receivers: [filelog/upmeet-mcp-backend]
+      processors: [resource/project, batch]
+      exporters: [otlphttp/ialab]

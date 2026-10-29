@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "ialab-platform": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--directory",
+        "${IALAB_MCP_DIR:-../platform/mcp-server}",
+        "ialab-mcp"
+      ],
+      "env": {
+        "IALAB_API_URL": "${IALAB_API_URL:-https://monitoring.ia-lab.fr/api}",
+        "IALAB_SERVICE_TOKEN": "${IALAB_SERVICE_TOKEN}"
+      }
+    }
+  }
+}
