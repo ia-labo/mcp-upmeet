@@ -4,13 +4,14 @@ import asyncio
 
 import httpx
 from mcp import Client
+from mcp.types import CallToolResult
 
 from app import main
 from app.core.settings import Settings
 from app.upmeet import UpmeetClient
 
 
-def _call_tool_in_memory(name: str, arguments: dict) -> object:
+def _call_tool_in_memory(name: str, arguments: dict) -> CallToolResult:
     """Call a tool on the server through a real MCP client session.
 
     Args:
@@ -21,7 +22,7 @@ def _call_tool_in_memory(name: str, arguments: dict) -> object:
         The ``CallToolResult`` received by the client.
     """
 
-    async def _call() -> object:
+    async def _call() -> CallToolResult:
         async with Client(main.mcp) as client:
             return await client.call_tool(name, arguments)
 
