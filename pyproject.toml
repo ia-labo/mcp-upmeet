@@ -7,7 +7,7 @@ packages = [{ include = "app" }]
 
 [tool.poetry.dependencies]
 python = ">=3.12,<4.0"
-mcp = "^1.9"
+mcp = "^2.3"
 httpx = "^0.28"
 
 [tool.poetry.group.dev.dependencies]
