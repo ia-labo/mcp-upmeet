@@ -11,10 +11,10 @@ mcp = "^2.3"
 httpx = "^0.28"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^8.3"
-pylint = "^3.3"
-black = "^25.1"
-isort = "^6.0"
+pytest = "^9.2"
+pylint = "^4.1"
+black = "^26.10"
+isort = "^9.0"
 pre-commit = "^4.2"
 
 [tool.poetry.scripts]
